@@ -50,8 +50,9 @@ body, .main, .block-container {
     text-align: right;
 }
 
-/* ---- DESKTOP (>=769px): restore Streamlit's default ---- */
+/* ---- DESKTOP (>=769px): restore and explicitly handle expanded / collapsed ---- */
 @media (min-width: 769px) {
+    /* default (expanded) */
     [data-testid="stSidebar"] {
         position: relative !important;
         transform: none !important;
@@ -60,14 +61,23 @@ body, .main, .block-container {
         max-width: 18rem !important;
         box-shadow: none !important;
         z-index: auto !important;
+        transition: width 0.18s ease !important;
+        overflow: hidden !important;
     }
+
+    /* collapsed state (when Streamlit toggles aria-expanded="false") */
+    [data-testid="stSidebar"][aria-expanded="false"] {
+        width: 3.5rem !important;   /* narrow column like default Streamlit */
+    }
+
+    /* make sure the main content doesn't shift awkwardly */
     [data-testid="stAppViewContainer"] {
         margin-right: 0 !important;
         margin-left: 0 !important;
     }
 }
 
-/* ---- MOBILE (<769px): use slide-in sidebar ---- */
+/* ---- MOBILE (<769px): use slide-in sidebar (off-canvas) ---- */
 @media (max-width: 768px) {
     [data-testid="stSidebar"] {
         position: fixed !important;
@@ -79,8 +89,9 @@ body, .main, .block-container {
         background-color: white !important;
         z-index: 9999 !important;
         transform: translateX(100%); /* fully off-screen by default */
-        transition: transform 0.3s ease-in-out;
+        transition: transform 0.28s ease-in-out;
         box-shadow: -4px 0 12px rgba(0,0,0,0.15);
+        overflow-y: auto !important;
     }
 
     [data-testid="stSidebar"][aria-expanded="true"] {
@@ -102,6 +113,7 @@ body, .main, .block-container {
 }
 </style>
 """, unsafe_allow_html=True)
+
 
 
 
@@ -205,6 +217,7 @@ if st.button("שלח"):
 # --- FOOTER ---
 st.markdown("---")
 st.caption("🕍 אפליקציית ניתוח נתוני מניין • פותח על ידי עידן")
+
 
 
 
