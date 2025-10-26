@@ -44,23 +44,64 @@ body, .block-container {
 
 st.markdown("""
 <style>
-/* Sidebar responsive layout fix */
+/* KEEP global RTL for texts (unchanged) */
+body, .main, .block-container {
+    direction: rtl;
+    text-align: right;
+}
+
+/* Desktop: do not change sidebar layout at all (safe-guard) */
+@media (min-width: 769px) {
+    [data-testid="stSidebar"] {
+        position: relative !important;
+        transform: none !important;
+        width: 22rem !important;  /* default Streamlit width */
+    }
+    [data-testid="stAppViewContainer"] {
+        margin-left: 0 !important;
+    }
+}
+
+/* Mobile-only sidebar behavior */
 @media (max-width: 768px) {
+    /* make sidebar fixed and initially off-screen */
     [data-testid="stSidebar"] {
         position: fixed !important;
         top: 0;
-        left: 0;
+        right: 0;                 /* RTL: align to right */
         width: 80% !important;
-        height: 100%;
-        transform: translateX(-100%);
-        transition: transform 0.3s ease-in-out;
+        max-width: 420px;
+        height: 100vh !important;
+        z-index: 9999 !important;
+        transform: translateX(100%); /* push off-screen to the right (RTL) */
+        transition: transform 0.28s ease-in-out;
+        box-shadow: -4px 0 12px rgba(0,0,0,0.12);
     }
+
+    /* When Streamlit marks the sidebar expanded, bring it in */
     [data-testid="stSidebar"][aria-expanded="true"] {
-        transform: translateX(0);
+        transform: translateX(0) !important;
     }
+
+    /* ensure the main app content stays in place under the fixed sidebar */
+    [data-testid="stAppViewContainer"] {
+        margin-right: 0 !important;
+        overflow-x: hidden;
+    }
+
+    /* small tweak so the hamburger/toggle doesn't create weird spacing */
+    header > div[role="button"] {
+        z-index: 10000;
+    }
+}
+
+/* Make only the slider LTR while leaving everything else RTL */
+[data-baseweb="slider"] {
+    direction: ltr !important;
 }
 </style>
 """, unsafe_allow_html=True)
+
 
 # --- Connect to the database (creates file if not exists) ---
 conn = sqlite3.connect("feedback.db")
@@ -162,5 +203,6 @@ if st.button("שלח"):
 # --- FOOTER ---
 st.markdown("---")
 st.caption("🕍 אפליקציית ניתוח נתוני מניין • פותח על ידי עידן")
+
 
 
