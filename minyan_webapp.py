@@ -16,86 +16,75 @@ def load_google_sheet(sheet_url):
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Minyan Observer Dashboard", layout="wide")
 
+# st.markdown("""
+# <style>
+# /* Everything RTL */
+# body, .block-container {
+#     direction: rtl;
+#     text-align: right;
+# }
+
+# /* Sidebar headings */
+# [data-testid="stSidebar"] h3 {
+#     color: #004080;
+#     text-align: right;
+# }
+
+# /* Sidebar background */
+# [data-testid="stSidebar"] .css-1d391kg {
+#     background-color: #f0f8ff;
+# }
+
+# /* Make the slider LTR so number shows properly */
+# [data-baseweb="slider"] {
+#     direction: ltr !important;
+# }
+# </style>
+# """, unsafe_allow_html=True)
+
 st.markdown("""
 <style>
-/* Everything RTL */
-body, .block-container {
-    direction: rtl;
-    text-align: right;
-}
-
-/* Sidebar headings */
-[data-testid="stSidebar"] h3 {
-    color: #004080;
-    text-align: right;
-}
-
-/* Sidebar background */
-[data-testid="stSidebar"] .css-1d391kg {
-    background-color: #f0f8ff;
-}
-
-/* Make the slider LTR so number shows properly */
-[data-baseweb="slider"] {
-    direction: ltr !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<style>
-/* KEEP global RTL for texts (unchanged) */
+/* Global RTL layout */
 body, .main, .block-container {
     direction: rtl;
     text-align: right;
 }
 
-/* Desktop: do not change sidebar layout at all (safe-guard) */
-@media (min-width: 769px) {
-    [data-testid="stSidebar"] {
-        position: relative !important;
-        transform: none !important;
-        width: 22rem !important;  /* default Streamlit width */
-    }
-    [data-testid="stAppViewContainer"] {
-        margin-left: 0 !important;
-    }
-}
-
-/* Mobile-only sidebar behavior */
+/* ---- MOBILE ONLY ---- */
 @media (max-width: 768px) {
-    /* make sidebar fixed and initially off-screen */
+    /* Make sidebar slide in from the right */
     [data-testid="stSidebar"] {
         position: fixed !important;
         top: 0;
-        right: 0;                 /* RTL: align to right */
+        right: 0;
         width: 80% !important;
         max-width: 420px;
         height: 100vh !important;
+        background-color: white !important;
         z-index: 9999 !important;
-        transform: translateX(100%); /* push off-screen to the right (RTL) */
-        transition: transform 0.28s ease-in-out;
-        box-shadow: -4px 0 12px rgba(0,0,0,0.12);
+        transform: translateX(100%);  /* hidden off-screen by default */
+        transition: transform 0.3s ease-in-out;
+        box-shadow: -4px 0 12px rgba(0,0,0,0.15);
+        overflow-y: auto !important;
     }
 
-    /* When Streamlit marks the sidebar expanded, bring it in */
+    /* When sidebar is opened */
     [data-testid="stSidebar"][aria-expanded="true"] {
         transform: translateX(0) !important;
     }
 
-    /* ensure the main app content stays in place under the fixed sidebar */
+    /* Prevent content overflow on mobile */
     [data-testid="stAppViewContainer"] {
-        margin-right: 0 !important;
-        overflow-x: hidden;
+        overflow-x: hidden !important;
     }
 
-    /* small tweak so the hamburger/toggle doesn't create weird spacing */
+    /* Ensure hamburger menu button stays on top */
     header > div[role="button"] {
         z-index: 10000;
     }
 }
 
-/* Make only the slider LTR while leaving everything else RTL */
+/* ---- Slider fix: force LTR ---- */
 [data-baseweb="slider"] {
     direction: ltr !important;
 }
@@ -204,6 +193,7 @@ if st.button("שלח"):
 # --- FOOTER ---
 st.markdown("---")
 st.caption("🕍 אפליקציית ניתוח נתוני מניין • פותח על ידי עידן")
+
 
 
 
