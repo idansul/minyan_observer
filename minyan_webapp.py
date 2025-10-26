@@ -44,16 +44,19 @@ body, .block-container {
 
 st.markdown("""
 <style>
-/* Hide sidebar by default on small screens */
+/* Sidebar responsive layout fix */
 @media (max-width: 768px) {
     [data-testid="stSidebar"] {
-        display: none;
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        width: 80% !important;
+        height: 100%;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
     }
-    [data-testid="stSidebarNav"] {
-        display: none;
-    }
-    [data-testid="stAppViewContainer"] {
-        margin-left: 0 !important;
+    [data-testid="stSidebar"][aria-expanded="true"] {
+        transform: translateX(0);
     }
 }
 </style>
@@ -159,4 +162,5 @@ if st.button("שלח"):
 # --- FOOTER ---
 st.markdown("---")
 st.caption("🕍 אפליקציית ניתוח נתוני מניין • פותח על ידי עידן")
+
 
