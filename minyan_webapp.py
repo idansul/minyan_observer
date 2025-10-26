@@ -41,10 +41,10 @@ body, .block-container {
 """, unsafe_allow_html=True)
 
 # --- TITLE ---
-st.title("ניתוח נתוני מניין 📊")
+st.header("ניתוח נתוני מניין 📊")
 
 # --- DATA SOURCE (no sidebar anymore) ---
-st.header("מקור הנתונים 📂")
+st.subheader("מקור הנתונים 📂")
 
 data_source = st.radio(
     "בחר מקור נתונים:",
@@ -110,7 +110,7 @@ elif view == "📊 ממוצע לפי ימים":
     st.pyplot(plt.gcf())
 
 # --- FEEDBACK SECTION ---
-st.header("משוב ורעיונות לפיתוח 💡")
+st.subheader("משוב ורעיונות לפיתוח 💡")
 
 feedback = st.text_area("יש לכם רעיון לשיפור הכלי או תכונה חדשה שתרצו לראות?", placeholder="כתבו כאן...")
 
