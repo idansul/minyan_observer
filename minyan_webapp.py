@@ -5,6 +5,14 @@ import sqlite3
 import datetime
 from minyan_observer import MinyanObserver
 
+
+@st.cache_data(ttl=300)  # cache for 5 minutes
+def load_google_sheet(sheet_url):
+    csv_url = sheet_url.replace("/edit?gid=", "/export?format=csv&gid=")
+    df = pd.read_csv(csv_url)
+    return df
+
+
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Minyan Observer Dashboard", layout="wide")
 
@@ -24,13 +32,30 @@ conn.commit()
 
 st.markdown("""
 <style>
-/* Force all text to RTL */
+/* Everything RTL */
 body, .block-container {
     direction: rtl;
     text-align: right;
 }
+
+/* Sidebar headings */
+[data-testid="stSidebar"] h3 {
+    color: #004080;
+    text-align: right;
+}
+
+/* Sidebar background */
+[data-testid="stSidebar"] .css-1d391kg {
+    background-color: #f0f8ff;
+}
+
+/* Make the slider LTR so number shows properly */
+[data-baseweb="slider"] {
+    direction: ltr !important;
+}
 </style>
 """, unsafe_allow_html=True)
+
 
 
 st.title("ניתוח נתוני מניין 📊")
@@ -47,8 +72,7 @@ if data_source == "Google Sheets":
     sheet_url = "https://docs.google.com/spreadsheets/d/1lERScRlw-r0LDmyuExE0TrxALEvPIxvQi4ex21mY_D0/export?format=csv&gid=0"
     if sheet_url:
         try:
-            csv_url = sheet_url.replace("/edit?gid=", "/export?format=csv&gid=")
-            data = pd.read_csv(csv_url)
+            data = load_google_sheet(sheet_url)
             st.success("✅ הנתונים נטענו בהצלחה מה-Google Sheets.")
         except Exception as e:
             st.error(f"שגיאה בטעינת הנתונים: {e}")
