@@ -44,63 +44,65 @@ body, .block-container {
 
 st.markdown("""
 <style>
-/* KEEP global RTL for texts (unchanged) */
+/* Global RTL */
 body, .main, .block-container {
     direction: rtl;
     text-align: right;
 }
 
-/* Desktop: do not change sidebar layout at all (safe-guard) */
+/* ---- DESKTOP (>=769px): restore Streamlit's default ---- */
 @media (min-width: 769px) {
     [data-testid="stSidebar"] {
         position: relative !important;
         transform: none !important;
-        width: 22rem !important;  /* default Streamlit width */
+        width: 18rem !important;
+        min-width: 18rem !important;
+        max-width: 18rem !important;
+        box-shadow: none !important;
+        z-index: auto !important;
     }
     [data-testid="stAppViewContainer"] {
+        margin-right: 0 !important;
         margin-left: 0 !important;
     }
 }
 
-/* Mobile-only sidebar behavior */
+/* ---- MOBILE (<769px): use slide-in sidebar ---- */
 @media (max-width: 768px) {
-    /* make sidebar fixed and initially off-screen */
     [data-testid="stSidebar"] {
         position: fixed !important;
         top: 0;
-        right: 0;                 /* RTL: align to right */
+        right: 0; /* RTL: slide from right */
         width: 80% !important;
         max-width: 420px;
         height: 100vh !important;
+        background-color: white !important;
         z-index: 9999 !important;
-        transform: translateX(100%); /* push off-screen to the right (RTL) */
-        transition: transform 0.28s ease-in-out;
-        box-shadow: -4px 0 12px rgba(0,0,0,0.12);
+        transform: translateX(100%); /* fully off-screen by default */
+        transition: transform 0.3s ease-in-out;
+        box-shadow: -4px 0 12px rgba(0,0,0,0.15);
     }
 
-    /* When Streamlit marks the sidebar expanded, bring it in */
     [data-testid="stSidebar"][aria-expanded="true"] {
         transform: translateX(0) !important;
     }
 
-    /* ensure the main app content stays in place under the fixed sidebar */
     [data-testid="stAppViewContainer"] {
-        margin-right: 0 !important;
-        overflow-x: hidden;
+        overflow-x: hidden !important;
     }
 
-    /* small tweak so the hamburger/toggle doesn't create weird spacing */
     header > div[role="button"] {
         z-index: 10000;
     }
 }
 
-/* Make only the slider LTR while leaving everything else RTL */
+/* Make only the slider LTR */
 [data-baseweb="slider"] {
     direction: ltr !important;
 }
 </style>
 """, unsafe_allow_html=True)
+
 
 
 # --- Connect to the database (creates file if not exists) ---
@@ -203,6 +205,7 @@ if st.button("שלח"):
 # --- FOOTER ---
 st.markdown("---")
 st.caption("🕍 אפליקציית ניתוח נתוני מניין • פותח על ידי עידן")
+
 
 
 
