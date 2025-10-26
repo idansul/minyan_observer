@@ -16,20 +16,6 @@ def load_google_sheet(sheet_url):
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Minyan Observer Dashboard", layout="wide")
 
-# --- Connect to the database (creates file if not exists) ---
-conn = sqlite3.connect("feedback.db")
-cursor = conn.cursor()
-
-# --- Create table once ---
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS feedback (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    timestamp TEXT,
-    message TEXT
-)
-""")
-conn.commit()
-
 st.markdown("""
 <style>
 /* Everything RTL */
@@ -55,6 +41,37 @@ body, .block-container {
 }
 </style>
 """, unsafe_allow_html=True)
+
+st.markdown("""
+<style>
+/* Hide sidebar by default on small screens */
+@media (max-width: 768px) {
+    [data-testid="stSidebar"] {
+        display: none;
+    }
+    [data-testid="stSidebarNav"] {
+        display: none;
+    }
+    [data-testid="stAppViewContainer"] {
+        margin-left: 0 !important;
+    }
+}
+</style>
+""", unsafe_allow_html=True)
+
+# --- Connect to the database (creates file if not exists) ---
+conn = sqlite3.connect("feedback.db")
+cursor = conn.cursor()
+
+# --- Create table once ---
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS feedback (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp TEXT,
+    message TEXT
+)
+""")
+conn.commit()
 
 
 
@@ -142,3 +159,4 @@ if st.button("שלח"):
 # --- FOOTER ---
 st.markdown("---")
 st.caption("🕍 אפליקציית ניתוח נתוני מניין • פותח על ידי עידן")
+
