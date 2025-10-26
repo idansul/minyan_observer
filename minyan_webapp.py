@@ -44,76 +44,63 @@ body, .block-container {
 
 st.markdown("""
 <style>
-/* Global RTL */
+/* KEEP global RTL for texts (unchanged) */
 body, .main, .block-container {
     direction: rtl;
     text-align: right;
 }
 
-/* ---- DESKTOP (>=769px): restore and explicitly handle expanded / collapsed ---- */
+/* Desktop: do not change sidebar layout at all (safe-guard) */
 @media (min-width: 769px) {
-    /* default (expanded) */
     [data-testid="stSidebar"] {
         position: relative !important;
         transform: none !important;
-        width: 18rem !important;
-        min-width: 18rem !important;
-        max-width: 18rem !important;
-        box-shadow: none !important;
-        z-index: auto !important;
-        transition: width 0.18s ease !important;
-        overflow: hidden !important;
+        width: 22rem !important;  /* default Streamlit width */
     }
-
-    /* collapsed state (when Streamlit toggles aria-expanded="false") */
-    [data-testid="stSidebar"][aria-expanded="false"] {
-        width: 3.5rem !important;   /* narrow column like default Streamlit */
-    }
-
-    /* make sure the main content doesn't shift awkwardly */
     [data-testid="stAppViewContainer"] {
-        margin-right: 0 !important;
         margin-left: 0 !important;
     }
 }
 
-/* ---- MOBILE (<769px): use slide-in sidebar (off-canvas) ---- */
+/* Mobile-only sidebar behavior */
 @media (max-width: 768px) {
+    /* make sidebar fixed and initially off-screen */
     [data-testid="stSidebar"] {
         position: fixed !important;
         top: 0;
-        right: 0; /* RTL: slide from right */
+        right: 0;                 /* RTL: align to right */
         width: 80% !important;
         max-width: 420px;
         height: 100vh !important;
-        background-color: white !important;
         z-index: 9999 !important;
-        transform: translateX(100%); /* fully off-screen by default */
+        transform: translateX(100%); /* push off-screen to the right (RTL) */
         transition: transform 0.28s ease-in-out;
-        box-shadow: -4px 0 12px rgba(0,0,0,0.15);
-        overflow-y: auto !important;
+        box-shadow: -4px 0 12px rgba(0,0,0,0.12);
     }
 
+    /* When Streamlit marks the sidebar expanded, bring it in */
     [data-testid="stSidebar"][aria-expanded="true"] {
         transform: translateX(0) !important;
     }
 
+    /* ensure the main app content stays in place under the fixed sidebar */
     [data-testid="stAppViewContainer"] {
-        overflow-x: hidden !important;
+        margin-right: 0 !important;
+        overflow-x: hidden;
     }
 
+    /* small tweak so the hamburger/toggle doesn't create weird spacing */
     header > div[role="button"] {
         z-index: 10000;
     }
 }
 
-/* Make only the slider LTR */
+/* Make only the slider LTR while leaving everything else RTL */
 [data-baseweb="slider"] {
     direction: ltr !important;
 }
 </style>
 """, unsafe_allow_html=True)
-
 
 
 
@@ -217,6 +204,7 @@ if st.button("שלח"):
 # --- FOOTER ---
 st.markdown("---")
 st.caption("🕍 אפליקציית ניתוח נתוני מניין • פותח על ידי עידן")
+
 
 
 
