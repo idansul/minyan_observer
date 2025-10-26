@@ -5,99 +5,19 @@ import sqlite3
 import datetime
 from minyan_observer import MinyanObserver
 
-
-@st.cache_data(ttl=300)  # cache for 5 minutes
+# --- CACHE ---
+@st.cache_data(ttl=300)
 def load_google_sheet(sheet_url):
     csv_url = sheet_url.replace("/edit?gid=", "/export?format=csv&gid=")
     df = pd.read_csv(csv_url)
     return df
 
-
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Minyan Observer Dashboard", layout="wide")
 
-# st.markdown("""
-# <style>
-# /* Everything RTL */
-# body, .block-container {
-#     direction: rtl;
-#     text-align: right;
-# }
-
-# /* Sidebar headings */
-# [data-testid="stSidebar"] h3 {
-#     color: #004080;
-#     text-align: right;
-# }
-
-# /* Sidebar background */
-# [data-testid="stSidebar"] .css-1d391kg {
-#     background-color: #f0f8ff;
-# }
-
-# /* Make the slider LTR so number shows properly */
-# [data-baseweb="slider"] {
-#     direction: ltr !important;
-# }
-# </style>
-# """, unsafe_allow_html=True)
-
-st.markdown("""
-<style>
-/* Global RTL layout */
-body, .main, .block-container {
-    direction: rtl;
-    text-align: right;
-}
-
-/* ---- MOBILE ONLY ---- */
-@media (max-width: 768px) {
-    /* Make sidebar slide in from the right */
-    [data-testid="stSidebar"] {
-        position: fixed !important;
-        top: 0;
-        right: 0;
-        width: 80% !important;
-        max-width: 420px;
-        height: 100vh !important;
-        background-color: white !important;
-        z-index: 9999 !important;
-        transform: translateX(100%);  /* hidden off-screen by default */
-        transition: transform 0.3s ease-in-out;
-        box-shadow: -4px 0 12px rgba(0,0,0,0.15);
-        overflow-y: auto !important;
-    }
-
-    /* When sidebar is opened */
-    [data-testid="stSidebar"][aria-expanded="true"] {
-        transform: translateX(0) !important;
-    }
-
-    /* Prevent content overflow on mobile */
-    [data-testid="stAppViewContainer"] {
-        overflow-x: hidden !important;
-    }
-
-    /* Ensure hamburger menu button stays on top */
-    header > div[role="button"] {
-        z-index: 10000;
-    }
-}
-
-/* ---- Slider fix: force LTR ---- */
-[data-baseweb="slider"] {
-    direction: ltr !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-
-
-# --- Connect to the database (creates file if not exists) ---
+# --- DATABASE ---
 conn = sqlite3.connect("feedback.db")
 cursor = conn.cursor()
-
-# --- Create table once ---
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS feedback (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -107,32 +27,41 @@ CREATE TABLE IF NOT EXISTS feedback (
 """)
 conn.commit()
 
+# --- STYLES ---
+st.markdown("""
+<style>
+body, .block-container {
+    direction: rtl;
+    text-align: right;
+}
+[data-baseweb="slider"] {
+    direction: ltr !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
-
+# --- TITLE ---
 st.title("ניתוח נתוני מניין 📊")
 
-# --- LOAD DATA ---
-st.sidebar.header("מקור הנתונים 📂")
-data_source = st.sidebar.radio(
+# --- DATA SOURCE (no sidebar anymore) ---
+st.header("מקור הנתונים 📂")
+
+data_source = st.radio(
     "בחר מקור נתונים:",
-    ["Google Sheets", "קובץ מקומי"]
+    ["Google Sheets", "קובץ מקומי"],
+    horizontal=True
 )
 
 if data_source == "Google Sheets":
-    # sheet_url = st.sidebar.text_input("הכנס קישור Google Sheets:")
     sheet_url = "https://docs.google.com/spreadsheets/d/1lERScRlw-r0LDmyuExE0TrxALEvPIxvQi4ex21mY_D0/export?format=csv&gid=0"
-    if sheet_url:
-        try:
-            data = load_google_sheet(sheet_url)
-            st.success("✅ הנתונים נטענו בהצלחה מה-Google Sheets.")
-        except Exception as e:
-            st.error(f"שגיאה בטעינת הנתונים: {e}")
-            st.stop()
-    else:
-        st.warning("אנא הכנס קישור Google Sheets תקין.")
+    try:
+        data = load_google_sheet(sheet_url)
+        st.success("✅ הנתונים נטענו בהצלחה מה-Google Sheets.")
+    except Exception as e:
+        st.error(f"שגיאה בטעינת הנתונים: {e}")
         st.stop()
 else:
-    uploaded_file = st.sidebar.file_uploader("העלה קובץ CSV", type=["csv"])
+    uploaded_file = st.file_uploader("העלה קובץ CSV", type=["csv"])
     if uploaded_file:
         data = pd.read_csv(uploaded_file)
         st.success("✅ הנתונים נטענו בהצלחה מקובץ מקומי.")
@@ -143,25 +72,29 @@ else:
 # --- CREATE OBSERVER ---
 gruz = MinyanObserver(data)
 
-# --- SIDEBAR OPTIONS ---
-st.sidebar.header("⚙️ אפשרויות תצוגה")
-view = st.sidebar.selectbox(
-    "בחר גרף להצגה:",
-    [
-        "📅 שבוע נוכחי",
-        "🕒 מספר שבועות אחרונים",
-        "📈 ממוצע לפי שבועות",
-        "📊 ממוצע לפי ימים"
-    ]
-)
+# --- EXPANDER FOR DISPLAY OPTIONS ---
+with st.expander("⚙️ אפשרויות תצוגה", expanded=True):
+    view = st.selectbox(
+        "בחר גרף להצגה:",
+        [
+            "📅 שבוע נוכחי",
+            "🕒 מספר שבועות אחרונים",
+            "📈 ממוצע לפי שבועות",
+            "📊 ממוצע לפי ימים"
+        ]
+    )
 
+    n_weeks = None
+    if view == "🕒 מספר שבועות אחרונים":
+        n_weeks = st.slider("כמה שבועות אחרונים להציג?", 1, 10, 2)
+
+# --- SHOW PLOTS ---
 if view == "📅 שבוע נוכחי":
     st.subheader("שבוע נוכחי")
     gruz.plot_this_week()
     st.pyplot(plt.gcf())
 
 elif view == "🕒 מספר שבועות אחרונים":
-    n_weeks = st.sidebar.slider("כמה שבועות אחרונים להציג?", 1, 10, 2)
     st.subheader(f"נתוני {n_weeks} השבועות האחרונים")
     gruz.plot_recent_weeks(n_weeks)
     st.pyplot(plt.gcf())
@@ -176,7 +109,7 @@ elif view == "📊 ממוצע לפי ימים":
     gruz.plot_global_stats(var="day")
     st.pyplot(plt.gcf())
 
-# --- Streamlit UI ---
+# --- FEEDBACK SECTION ---
 st.header("משוב ורעיונות לפיתוח 💡")
 
 feedback = st.text_area("יש לכם רעיון לשיפור הכלי או תכונה חדשה שתרצו לראות?", placeholder="כתבו כאן...")
@@ -193,10 +126,3 @@ if st.button("שלח"):
 # --- FOOTER ---
 st.markdown("---")
 st.caption("🕍 אפליקציית ניתוח נתוני מניין • פותח על ידי עידן")
-
-
-
-
-
-
-
