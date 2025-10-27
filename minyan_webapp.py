@@ -99,16 +99,18 @@ elif view == "📊 ממוצע לפי ימים":
 # --- FEEDBACK SECTION ---
 st.header("משוב ורעיונות לפיתוח 💡")
 
-WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwFkgDcJVhdvVDWd9i8yH5XieMBtZjslgno9oJDWm0wX-csBvFgoRQfhnkrXkdHgPscWw/exec"
+WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyNCaFJtmB1wIqi9cmwDFGgK3dz1oItdIFxHMVBtMC9jWzELV6xH6Y5d85OPvZX0cEZ4g/exec"
+feedback = st.text_area("יש לכם רעיון לשיפור הכלי או תכונה חדשה שתרצו לראות?", placeholder="כתבו כאן...")
 
-feedback = st.text_area("המשוב שלך")
 if st.button("שלח"):
-    res = requests.post(WEBHOOK_URL, json={"feedback": feedback})
-    if res.status_code == 200:
-        st.success("תודה על המשוב!")
+    if feedback.strip():
+        res = requests.post(WEBHOOK_URL, json={"feedback": feedback})
+        if res.status_code == 200:
+            st.success("✅ תודה על המשוב! הרעיון שלכם נשמר.")
+        else:
+            st.error("שגיאה בשליחה, נסה שוב.")
     else:
-        st.error("שגיאה בשליחה, נסה שוב.")
-
+        st.warning("אנא כתבו משהו לפני השליחה.")
 
 # --- FOOTER ---
 st.markdown("---")
