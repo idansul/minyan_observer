@@ -1,8 +1,9 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import sqlite3
 import datetime
+from google.oauth2.service_account import Credentials
+import gspread
 from minyan_observer import MinyanObserver
 
 # --- CACHE ---
@@ -14,18 +15,6 @@ def load_google_sheet(sheet_url):
 
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Minyan Observer Dashboard", layout="wide")
-
-# --- DATABASE ---
-conn = sqlite3.connect("feedback.db")
-cursor = conn.cursor()
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS feedback (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    timestamp TEXT,
-    message TEXT
-)
-""")
-conn.commit()
 
 # --- STYLES ---
 st.markdown("""
@@ -110,16 +99,28 @@ elif view == "📊 ממוצע לפי ימים":
     st.pyplot(plt.gcf())
 
 # --- FEEDBACK SECTION ---
-st.subheader("משוב ורעיונות לפיתוח 💡")
+st.header("משוב ורעיונות לפיתוח 💡")
+
+# Google Sheets setup
+FEEDBACK_SHEET_URL = "https://docs.google.com/spreadsheets/d/1GR-fWGhmFvstR6eKHgvCYBt2o_rAbVByKmGxbfUA7Lk/edit?gid=0#gid=0"
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+creds = Credentials.from_service_account_file("credentials.json", scopes=SCOPES)
+client = gspread.authorize(creds)
+feedback_sheet = client.open_by_url(FEEDBACK_SHEET_URL).sheet1
 
 feedback = st.text_area("יש לכם רעיון לשיפור הכלי או תכונה חדשה שתרצו לראות?", placeholder="כתבו כאן...")
 
+def save_feedback(message):
+    timestamp = datetime.datetime.now().isoformat()
+    feedback_sheet.append_row([timestamp, message])
+
 if st.button("שלח"):
     if feedback.strip():
-        cursor.execute("INSERT INTO feedback (timestamp, message) VALUES (?, ?)",
-                       (datetime.datetime.now().isoformat(), feedback))
-        conn.commit()
-        st.success("✅ תודה על המשוב! הרעיון שלכם נשמר.")
+        try:
+            save_feedback(feedback)
+            st.success("✅ תודה על המשוב! הרעיון שלכם נשמר.")
+        except Exception as e:
+            st.error(f"❌ שגיאה בשליחת המשוב: {e}")
     else:
         st.warning("אנא כתבו משהו לפני השליחה.")
 
