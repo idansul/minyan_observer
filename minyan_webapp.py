@@ -1,9 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import datetime
-from google.oauth2.service_account import Credentials
-import gspread
+import requests
 from minyan_observer import MinyanObserver
 
 # --- CACHE ---
@@ -101,28 +99,16 @@ elif view == "📊 ממוצע לפי ימים":
 # --- FEEDBACK SECTION ---
 st.header("משוב ורעיונות לפיתוח 💡")
 
-# Google Sheets setup
-FEEDBACK_SHEET_URL = "https://docs.google.com/spreadsheets/d/1GR-fWGhmFvstR6eKHgvCYBt2o_rAbVByKmGxbfUA7Lk/edit?gid=0#gid=0"
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
-creds = Credentials.from_service_account_file("credentials.json", scopes=SCOPES)
-client = gspread.authorize(creds)
-feedback_sheet = client.open_by_url(FEEDBACK_SHEET_URL).sheet1
+WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwFkgDcJVhdvVDWd9i8yH5XieMBtZjslgno9oJDWm0wX-csBvFgoRQfhnkrXkdHgPscWw/exec"
 
-feedback = st.text_area("יש לכם רעיון לשיפור הכלי או תכונה חדשה שתרצו לראות?", placeholder="כתבו כאן...")
-
-def save_feedback(message):
-    timestamp = datetime.datetime.now().isoformat()
-    feedback_sheet.append_row([timestamp, message])
-
+feedback = st.text_area("המשוב שלך")
 if st.button("שלח"):
-    if feedback.strip():
-        try:
-            save_feedback(feedback)
-            st.success("✅ תודה על המשוב! הרעיון שלכם נשמר.")
-        except Exception as e:
-            st.error(f"❌ שגיאה בשליחת המשוב: {e}")
+    res = requests.post(WEBHOOK_URL, json={"feedback": feedback})
+    if res.status_code == 200:
+        st.success("תודה על המשוב!")
     else:
-        st.warning("אנא כתבו משהו לפני השליחה.")
+        st.error("שגיאה בשליחה, נסה שוב.")
+
 
 # --- FOOTER ---
 st.markdown("---")
