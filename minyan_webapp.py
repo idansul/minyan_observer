@@ -73,7 +73,7 @@ with st.expander("⚙️ אפשרויות תצוגה", expanded=True):
 
     n_weeks = None
     if view == "🕒 מספר שבועות אחרונים":
-        n_weeks = st.slider("כמה שבועות אחרונים להציג?", 1, 10, 2)
+        n_weeks = st.slider("כמה שבועות אחרונים להציג?", 1, max(gruz.data["week_number"]), 2)
 
 # --- SHOW PLOTS ---
 if view == "📅 שבוע נוכחי":
@@ -84,6 +84,7 @@ if view == "📅 שבוע נוכחי":
 elif view == "🕒 מספר שבועות אחרונים":
     st.subheader(f"נתוני {n_weeks} השבועות האחרונים")
     gruz.plot_recent_weeks(n_weeks)
+    plt.subplots_adjust(bottom=0.25)
     st.pyplot(plt.gcf())
 
 elif view == "📈 ממוצע לפי שבועות":
@@ -115,3 +116,4 @@ if st.button("שלח"):
 # --- FOOTER ---
 st.markdown("---")
 st.caption("🕍 אפליקציית ניתוח נתוני מניין • פותח על ידי עידן")
+
