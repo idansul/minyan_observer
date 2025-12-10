@@ -93,7 +93,8 @@ class MinyanObserver:
         hebrew_days = {"Sun": "א", "Mon": "ב", "Tue": "ג", "Wed": "ד", "Thu": "ה", "Fri": "ו"}
 
         hebrew_title = "נוכחות מניין ומשך התפילה - שבוע"[::-1]
-        ax.set_title(f"#{week_num} {hebrew_title}")
+        main_title = 'בי"כ שערי שמים - שחרית'[::-1]
+        ax.set_title(f"{main_title}\n #{week_num} {hebrew_title}")
         ax.set_ylabel("מספר מתפללים"[::-1])
         ax.grid(axis='y', linewidth=0.3)
 
@@ -174,4 +175,5 @@ class MinyanObserver:
         if save:
             plt.savefig(f"weekly_reports/global_{var}s_stats.jpg", dpi=200, bbox_inches="tight")  # save as JPG
         plt.show()
+
 
