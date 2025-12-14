@@ -166,7 +166,7 @@ class MinyanObserver:
         ax.set_xticks(stats.index)  # show only integer week numbers
         ax.set_yticks(range(5, int(ax.get_ylim()[1]) + 1))
     
-        ax.set_title(f"נוכחות מנין לפי {heb_var} )ממוצע ± סטיית("[::-1])
+        ax.set_title(f"נוכחות מנין לפי {heb_var} )ממוצע ± סטיית תקן("[::-1])
         ax.set_xlabel(xlabel)
         ax.set_ylabel("מספר מתפללים"[::-1])
         ax.grid(axis="y", linewidth=0.3)
@@ -175,5 +175,6 @@ class MinyanObserver:
         if save:
             plt.savefig(f"weekly_reports/global_{var}s_stats.jpg", dpi=200, bbox_inches="tight")  # save as JPG
         plt.show()
+
 
 
